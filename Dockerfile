@@ -24,6 +24,12 @@ RUN apk add --no-cache \
 		git \
 	;
 
+RUN apk update && \
+    apk add --no-cache --virtual dev-deps git autoconf gcc g++ make && \
+    apk add --no-cache zlib-dev libzip-dev linux-headers postgresql-dev libxslt-dev pcre-dev rabbitmq-c-dev
+
+RUN docker-php-ext-install pdo_pgsql intl zip xsl
+
 RUN set -eux; \
 	install-php-extensions \
 		apcu \
