@@ -6,6 +6,7 @@ use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 class Category
@@ -23,6 +24,9 @@ class Category
 
     #[ORM\ManyToMany(targetEntity: Affiliate::class, mappedBy: 'categories')]
     private Collection $affilities;
+
+    #[ORM\Column(length: 255, unique: true)]
+    private ?string $slug = null;
 
     public function __construct()
     {
@@ -115,5 +119,17 @@ class Category
         return $this->jobs->filter(function(Job $job) {
             return $job->getExpiresAt() > new \DateTime();
         });
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
+
+        return $this;
     }
 }

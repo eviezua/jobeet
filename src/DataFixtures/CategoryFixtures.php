@@ -12,7 +12,7 @@ class CategoryFixtures extends Fixture
     {
         $designCategory = new Category();
         $designCategory->setName('Design');
-
+        
         $programmingCategory = new Category();
         $programmingCategory->setName('Programming');
 
