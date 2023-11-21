@@ -6,6 +6,14 @@
 
 {% block body %}
     <h4>{{ category.name }}</h4>
+    {% include 'job/table.html.twig' with {'jobs': activeJobs} only %}
+    <ul class="pagination">
+    {% if previous >= 0 %}
+        <li class="page-item"><a class="page-link" href="{{ path('category.show', { slug: category.slug, offset: previous }) }}">Previous</a></li>
+    {% endif %}
 
-    {% include 'job/table.html.twig' with {'jobs': category.activeJobs} only %}
+    {% if next < activeJobs|length %}
+        <li class="page-item"><a class="page-link" href="{{ path('category.show', { slug: category.slug, offset: next }) }}">Next</a></li>
+    {% endif %}
+    </ul>
 {% endblock %}

@@ -2,9 +2,11 @@
 
 namespace App\Repository;
 
+use  App\Entity\Category;
 use App\Entity\Job;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 /**
  * @extends ServiceEntityRepository<Job>
@@ -16,6 +18,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class JobRepository extends ServiceEntityRepository
 {
+    public const PAGINATOR_PER_PAGE = 10;
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Job::class);
@@ -48,6 +51,25 @@ class JobRepository extends ServiceEntityRepository
             ->setParameter('date', new \DateTime())
             ->getQuery()
             ->getOneOrNullResult();
+    }
+    public function getPaginatedActiveJobsByCategoryQuery(Category $category, int $offset) : Paginator
+    {
+        $query = $this->createQueryBuilder('j')
+                ->where('j.category = :category')
+                ->andWhere('j.expiresAt > :date')
+                ->setParameter('category', $category)
+                ->setParameter('date', new \DateTime())
+                ->setMaxResults(self::PAGINATOR_PER_PAGE)
+                ->setFirstResult($offset)
+                ->getQuery()
+            ;
+        return new Paginator($query);
+        /*return $this->createQueryBuilder('j')
+            ->where('j.category = :category')
+            ->andWhere('j.expiresAt > :date')
+            ->setParameter('category', $category)
+            ->setParameter('date', new \DateTime())
+            ->getQuery();*/
     }
 //    /**
 //     * @return Job[] Returns an array of Job objects
