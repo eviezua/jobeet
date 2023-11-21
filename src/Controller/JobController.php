@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\ExpressionLanguage\ExpressionLanguage;
-use Symfony\Component\String\Slugger\SluggerInterface;
 class JobController extends AbstractController
 {
     #[Route('/', name: 'job.list', methods: ['GET'])]
