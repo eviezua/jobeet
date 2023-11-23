@@ -5,50 +5,85 @@ namespace App\Entity;
 use App\Repository\JobRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 class Job
 {
+    public const FULL_TIME_TYPE = 'full-time';
+    public const PART_TIME_TYPE = 'part-time';
+    public const FREELANCE_TYPE = 'freelance';
+    public const TYPES = [
+        self::FULL_TIME_TYPE,
+        self::PART_TIME_TYPE,
+        self::FREELANCE_TYPE,
+    ];
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $type = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     private ?string $company = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logo = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     private ?string $url = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     private ?string $position = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
+    )]
     private ?string $location = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank]
     private ?string $howToApply = null;
 
     #[ORM\Column(length: 255)]
     private ?string $token = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?bool $public = null;
 
     #[ORM\Column]
+    #[Assert\NotNull]
     private ?bool $activated = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Email(  message: 'The email {{ value }} is not a valid email.')]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -62,6 +97,7 @@ class Job
 
     #[ORM\ManyToOne(inversedBy: 'jobs')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotBlank]
     private ?Category $category = null;
 
     public function getId(): ?int
@@ -176,12 +212,11 @@ class Job
     {
         return $this->token;
     }
-
-    public function setToken(string $token): static
+    #[ORM\PrePersist]
+    public function setToken(): void
     {
+        $token = bin2hex(\random_bytes(10));
         $this->token = $token;
-
-        return $this;
     }
 
     public function isPublic(): ?bool

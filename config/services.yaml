@@ -6,6 +6,7 @@
 parameters:
     locale: 'en'
     max_jobs_on_homepage: 10
+    jobs_directory: "%kernel.project_dir%/public/uploads/jobs"
 services:
     # default configuration for services in *this* file
     _defaults:
