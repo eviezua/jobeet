@@ -36,6 +36,11 @@ class CategoryController extends AbstractDashboardController
         //
         // return $this->render('some/path/my-dashboard.html.twig');
     }
+    #[Route('/logout', methods: ['GET'])]
+    public function logout()
+    {
+        throw new \Exception('logout() should never be reached');
+    }
 
     public function configureDashboard(): Dashboard
     {

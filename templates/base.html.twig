@@ -22,6 +22,27 @@
 
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
+                {% if is_granted('ROLE_ADMIN') %}
+                <li>
+                    <div>
+                        <a href="{{ path('admin') }}" class="btn btn-default navbar-btn">Admin Panel</a>
+                    </div>
+                </li>
+                {% endif %}
+                {% if is_granted('ROLE_USER') %}
+                    <li>
+                        <div>
+                            <a href="{{ path('app_logout') }}" class="btn btn-default navbar-btn">Log Out</a>
+                        </div>
+                    </li>
+                {% endif %}
+                {% if not is_granted('ROLE_USER') %}
+                    <li>
+                        <div>
+                            <a href="{{ path('app_login') }}" class="btn btn-default navbar-btn">Log In</a>
+                        </div>
+                    </li>
+                {% endif %}
                 <li>
                     <div>
                         <a href="{{ path('job.create') }}" class="btn btn-default navbar-btn">Post a Job</a>

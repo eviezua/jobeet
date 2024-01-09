@@ -9,6 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
+use App\Service\JobHistoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Form\JobType;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -16,11 +17,12 @@ use Symfony\Component\Form\FormInterface;
 class JobController extends AbstractController
 {
     #[Route('/', name: 'job.list', methods: ['GET', 'POST'])]
-    public function list(Environment $twig, EntityManagerInterface $em): Response
+    public function list(Request $request, Environment $twig, EntityManagerInterface $em, JobHistoryService $jobHistoryService): Response
     {
         $categories = $em->getRepository(Category::class)->findWithActiveJobs();
         return new Response($twig->render('job/list.html.twig', [
             'categories' => $categories,
+            'historyJobs' => $jobHistoryService->getJobs()
         ]));
     }
 
@@ -41,7 +43,10 @@ class JobController extends AbstractController
             }
             $em->persist($job);
             $em->flush();
-
+            $this->addFlash(
+                'notice',
+                'Your changes were saved!'
+            );
             /*return $this->redirectToRoute('job.list');*/
             return $this->redirectToRoute(
                 'job.preview',
@@ -55,8 +60,9 @@ class JobController extends AbstractController
         ]);
     }
     #[Route('job/{id}', name: 'job.show', methods: ['GET'])]
-    public function show( Environment $twig, Job $job, EntityManagerInterface $em) : Response
+    public function show( Environment $twig, Job $job, EntityManagerInterface $em, JobHistoryService $jobHistoryService) : Response
     {
+        $jobHistoryService->addJob($job);
         /*$job = $em->getRepository(Job::class)->findActiveJob();*/
         return new Response($twig->render('job/show.html.twig', [
             'job' => $job,
