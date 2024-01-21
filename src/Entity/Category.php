@@ -10,14 +10,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[UniqueEntity('slug')]
 #[ApiResource(
     operations: [
-        new Get(),
-        new GetCollection()
+        new Get(normalizationContext: ['groups' => 'category:item']),
+        new GetCollection(normalizationContext: ['groups' => 'category:list'])
     ]
 )]
 class Category
@@ -25,12 +26,15 @@ class Category
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['category:list', 'category:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['category:list', 'category:item'])]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Job::class)]
+    #[Groups(['category:item'])]
     private Collection $jobs;
 
     #[ORM\ManyToMany(targetEntity: Affiliate::class, mappedBy: 'categories')]
