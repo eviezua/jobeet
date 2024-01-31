@@ -2,19 +2,34 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\AffiliateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AffiliateRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'affiliate:item']),
+        new GetCollection(normalizationContext: ['groups' => 'affiliate:list'])
+    ]
+)]
 class Affiliate
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -26,6 +41,7 @@ class Affiliate
     #[ORM\Column(length: 255)]
     private ?string $token = null;
 
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     #[ORM\Column]
     private ?bool $active = null;
 
@@ -33,6 +49,7 @@ class Affiliate
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'affilities')]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     private Collection $categories;
 
     public function __construct()
