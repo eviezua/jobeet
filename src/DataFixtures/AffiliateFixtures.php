@@ -26,8 +26,16 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $affiliateKNPLabs->addCategory($manager->merge($this->getReference('category-programming')));
         $affiliateKNPLabs->addCategory($manager->merge($this->getReference('category-design')));
 
+        $affiliateprivat = new Affiliate();
+        $affiliateprivat->setUrl('http://www.privat-bank.com/');
+        $affiliateprivat->setEmail('privat-bank@gmail.com');
+        $affiliateprivat->setActive(false);
+        $affiliateprivat->setToken('privat_bank');
+        $affiliateprivat->addCategory($manager->merge($this->getReference('category-administrator')));
+
         $manager->persist($affiliateSensioLabs);
         $manager->persist($affiliateKNPLabs);
+        $manager->persist($affiliateprivat);
 
         $manager->flush();
     }
