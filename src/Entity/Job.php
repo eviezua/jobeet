@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -15,10 +17,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 #[ApiResource(
         operations: [
-            new Get(normalizationContext: ['groups' => 'job:item']),
-            new GetCollection(normalizationContext: ['groups' => 'job:list'])
+            new Get(normalizationContext: ['groups' => 'job:item'], filters: ['affiliate.active']),
+            new GetCollection(normalizationContext: ['groups' => 'job:list'], filters: ['affiliate.active'])
         ]
 )]
+#[ApiFilter(BooleanFilter::class, properties: ['category.affilities.active'] )]
 class Job
 {
     public const FULL_TIME_TYPE = 'full-time';
@@ -37,7 +40,7 @@ class Job
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 255)]
@@ -46,7 +49,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $company = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -57,7 +60,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $url = null;
 
     #[ORM\Column(length: 255)]
@@ -75,17 +78,17 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $location = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups([ 'job:item'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $howToApply = null;
 
     #[ORM\Column(length: 255)]
@@ -102,11 +105,11 @@ class Job
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Email(  message: 'The email {{ value }} is not a valid email.')]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    #[Groups(['job:list', 'job:item'])]
+    #[Groups(['job:item'])]
     private ?\DateTimeInterface $expiresAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]

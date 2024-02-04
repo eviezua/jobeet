@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -11,15 +13,23 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[UniqueEntity('slug')]
+#[ApiFilter(BooleanFilter::class, properties: ['affilities.active'] )]
 #[ApiResource(
     operations: [
-        new Get(normalizationContext: ['groups' => 'category:item']),
-        new GetCollection(normalizationContext: ['groups' => 'category:list'])
-    ]
+        new GetCollection(filters: ['affilities.active']),
+    ],
+    normalizationContext: ['groups' => 'category:list'],
+)]
+#[ApiResource(
+    operations: [
+        new Get(),
+    ],
+    normalizationContext: ['groups' => 'category:item']
 )]
 class Category
 {
@@ -37,6 +47,7 @@ class Category
     #[Groups(['category:item'])]
     private Collection $jobs;
 
+    #[Groups(['category:list', 'category:item'])]
     #[ORM\ManyToMany(targetEntity: Affiliate::class, mappedBy: 'categories')]
     private Collection $affilities;
 
@@ -114,11 +125,19 @@ class Category
     /**
      * @return Collection<int, Affiliate>
      */
+
     public function getAffilities(): Collection
     {
         return $this->affilities;
     }
-
+    #[Groups(['category:list', 'category:item'])]
+    #[SerializedName('affilities')]
+    public function getActiveAffilities(): Collection
+    {
+        return $this->affilities->filter(static function (Affiliate $affiliate) {
+           return $affiliate->isActive();
+        });
+    }
     public function addAffility(Affiliate $affility): static
     {
         if (!$this->affilities->contains($affility)) {
