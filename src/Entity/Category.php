@@ -18,10 +18,9 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[UniqueEntity('slug')]
-#[ApiFilter(BooleanFilter::class, properties: ['affilities.active'] )]
 #[ApiResource(
     operations: [
-        new GetCollection(filters: ['affilities.active']),
+        new GetCollection(),
     ],
     normalizationContext: ['groups' => 'category:list'],
 )]
@@ -44,7 +43,6 @@ class Category
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Job::class)]
-    #[Groups(['category:item'])]
     private Collection $jobs;
 
     #[Groups(['category:list', 'category:item'])]

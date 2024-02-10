@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -17,11 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 #[ApiResource(
         operations: [
-            new Get(normalizationContext: ['groups' => 'job:item'], filters: ['affiliate.active']),
-            new GetCollection(normalizationContext: ['groups' => 'job:list'], filters: ['affiliate.active'])
+            new Get(normalizationContext: ['groups' => 'job:item']),
+            new GetCollection(normalizationContext: ['groups' => 'job:list'])
         ]
 )]
-#[ApiFilter(BooleanFilter::class, properties: ['category.affilities.active'] )]
 class Job
 {
     public const FULL_TIME_TYPE = 'full-time';
@@ -318,7 +315,6 @@ class Job
     {
         return $this->category;
     }
-
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
