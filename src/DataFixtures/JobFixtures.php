@@ -23,7 +23,6 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobSensioLabs->setHowToApply('Send your resume to fabien.potencier [at] sensio.com');
             $jobSensioLabs->setPublic(true);
             $jobSensioLabs->setActivated(true);
-            $jobSensioLabs->setToken('job_sensio_labs');
             $jobSensioLabs->setEmail('job@example.com');
             $jobSensioLabs->setCreatedAt(new \DateTime('-30 days'));
             $jobSensioLabs->setUpdatedAt(new \DateTime());
@@ -41,7 +40,6 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobExtremeSensio->setHowToApply('Send your resume to fabien.potencier [at] sensio.com');
             $jobExtremeSensio->setPublic(true);
             $jobExtremeSensio->setActivated(true);
-            $jobExtremeSensio->setToken('job_extreme_sensio');
             $jobExtremeSensio->setEmail('job@example.com');
             $jobExtremeSensio->setCreatedAt(new \DateTime('-30 days'));
             $jobExtremeSensio->setUpdatedAt(new \DateTime());
@@ -59,15 +57,50 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobPrivatBank->setHowToApply('Send your resume to I.V. Kolomoisky');
             $jobPrivatBank->setPublic(true);
             $jobPrivatBank->setActivated(true);
-            $jobPrivatBank->setToken('job_privat_bank');
             $jobPrivatBank->setEmail('job@example.com');
             $jobPrivatBank->setCreatedAt(new \DateTime('-90 days'));
             $jobPrivatBank->setUpdatedAt(new \DateTime('-20 days'));
             $jobPrivatBank->setExpiresAt(new \DateTime('-10 days'));
 
+            $jobVodafone = new Job();
+            $jobVodafone->setCategory($manager->merge($this->getReference('category-manager')));
+            $jobVodafone->setType('full-time');
+            $jobVodafone->setCompany('Vodafone');
+            $jobVodafone->setLogo('d2b2f95416baaae80f95.png');
+            $jobVodafone->setUrl('http://www.vodafone.com/');
+            $jobVodafone->setPosition('Manager');
+            $jobVodafone->setLocation('Ukraine');
+            $jobVodafone->setDescription('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in.');
+            $jobVodafone->setHowToApply('Phone us!');
+            $jobVodafone->setPublic(true);
+            $jobVodafone->setActivated(false);
+            $jobVodafone->setEmail('vodafone@example.com');
+            $jobVodafone->setCreatedAt(new \DateTime('-90 days'));
+            $jobVodafone->setUpdatedAt(new \DateTime('-20 days'));
+            $jobVodafone->setExpiresAt(new \DateTime('-10 days'));
+
+            $jobMida = new Job();
+            $jobMida->setCategory($manager->merge($this->getReference('category-programming')));
+            $jobMida->setType('full-time');
+            $jobMida->setCompany('Mida');
+            $jobMida->setLogo('dbeecc2401753f094282.png');
+            $jobMida->setUrl('http://www.mida.com/');
+            $jobMida->setPosition('Programmer');
+            $jobMida->setLocation('Ukraine, Zaporizhzhya');
+            $jobMida->setDescription('Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in.');
+            $jobMida->setHowToApply('Phone us!');
+            $jobMida->setPublic(false);
+            $jobMida->setActivated(true);
+            $jobMida->setEmail('mida@example.com');
+            $jobMida->setCreatedAt(new \DateTime('-90 days'));
+            $jobMida->setUpdatedAt(new \DateTime('-20 days'));
+            $jobMida->setExpiresAt(new \DateTime('-10 days'));
+
             $manager->persist($jobSensioLabs);
             $manager->persist($jobExtremeSensio);
             $manager->persist($jobPrivatBank);
+            $manager->persist($jobVodafone);
+            $manager->persist($jobMida);
         }
         $manager->flush();
     }
