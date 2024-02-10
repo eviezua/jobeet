@@ -25,6 +25,11 @@ class JobsWithActiveAffiliatesExtension implements QueryCollectionExtensionInter
         $queryBuilder->join(sprintf('%s.category', $rootAlias), 'c')
             ->join('c.affilities', 'a')
             ->andWhere('a.active = :active')
-            ->setParameter('active', true);
+            ->setParameter('active', true)
+            ->andWhere(sprintf('%s.activated = :activated', $rootAlias))
+            ->setParameter('activated', true)
+            ->andWhere(sprintf('%s.public = :public', $rootAlias))
+            ->setParameter('public', true)
+        ;
     }
 }
