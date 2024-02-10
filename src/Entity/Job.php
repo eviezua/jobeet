@@ -46,7 +46,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
-    #[Groups(['job:item'])]
+    #[Groups(['job:list', 'job:item'])]
     private ?string $company = null;
 
     #[ORM\Column(length: 255, nullable: true)]
