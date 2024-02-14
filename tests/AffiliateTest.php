@@ -52,4 +52,21 @@ class AffiliateTest extends ApiTestCase
         ]);
     }
 
+    public function testGetInactiveAffiliate(): void
+    {
+        $activeAffiliate = AffiliateFactory::createOne(['active' => true]);
+        $affiliate = AffiliateFactory::createOne(['active' => false]);
+        $affiliateId = $affiliate->getId();
+
+        static::createClient()->request('GET', "/api/affiliates/$affiliateId");
+
+        $this->assertResponseStatusCodeSame(404);
+        $this->assertInstanceOf(
+            Affiliate::class,
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $affiliateId]
+            )
+        );
+    }
+
 }
