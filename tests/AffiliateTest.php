@@ -4,8 +4,6 @@ namespace App\Tests;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Affiliate;
 use App\Factory\AffiliateFactory;
-use Zenstruck\Browser\HttpOptions;
-use Zenstruck\Browser\Json;
 use Zenstruck\Foundry\Test\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
