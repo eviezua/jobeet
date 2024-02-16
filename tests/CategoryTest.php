@@ -22,9 +22,12 @@ class CategoryTest extends ApiTestCase
         $category1 = CategoryFactory::createOne();
         $category2 = CategoryFactory::createOne();
         $category3 = CategoryFactory::createOne();
+        $category4 = CategoryFactory::createOne();
 
-        $activeAffiliate = AffiliateFactory::createOne(['active' => true]);
-        $inactiveAffiliate = AffiliateFactory::createOne(['active' => false]);
+        $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
+        $activeAffiliate = $activeAffiliateProxy->object();
+        $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
+        $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
@@ -44,9 +47,29 @@ class CategoryTest extends ApiTestCase
             '@context' => '/api/contexts/Category',
             '@id' => '/api/categories',
             '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 3,
+            'hydra:totalItems' => 4,
         ]);
     }
+public function testGetCategoryWithNoAffiliates(): void
+{
+
+    $category = CategoryFactory::createOne();
+
+    $categoryId = $category->getId();
+
+    static::createClient()->request('GET', "/api/categories/$categoryId");
+
+    $this->assertResponseIsSuccessful();
+    $this->assertJsonContains([
+        '@type' => 'Category',
+        '@context' => '/api/contexts/Category',
+        '@id' => "/api/categories/$categoryId",
+    ]);
+    $this->assertJsonContains([
+        'affilities' => [
+        ]
+    ]);
+}
 
     public function testGetCategoryWithActiveAffiliate(): void
     {
