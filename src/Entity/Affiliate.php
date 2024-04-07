@@ -2,13 +2,9 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\BooleanFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Serializer\Filter\PropertyFilter;
 use App\Repository\AffiliateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -51,10 +47,14 @@ class Affiliate
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'affilities')]
     #[Groups(['affiliate:list', 'affiliate:item'])]
     private Collection $categories;
+    #[ORM\ManyToMany(targetEntity: Job::class, mappedBy: 'affiliates')]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
+    private Collection $jobs;
 
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->jobs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -148,6 +148,33 @@ class Affiliate
     public function removeCategory(Category $category): static
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Job>
+     */
+    public function getJobs(): Collection
+    {
+        return $this->jobs;
+    }
+
+    public function addJob(Job $job): static
+    {
+        if (!$this->jobs->contains($job)) {
+            $this->jobs->add($job);
+            $job->addAffiliate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJob(Job $job): static
+    {
+        if ($this->jobs->removeElement($job)) {
+            $job->removeAffiliate($this);
+        }
 
         return $this;
     }

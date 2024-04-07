@@ -5,6 +5,8 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Repository\JobRepository;
 use Doctrine\DBAL\Types\Types;
@@ -120,6 +122,14 @@ class Job
     #[Assert\NotBlank]
     #[Groups(['job:list', 'job:item'])]
     private ?Category $category = null;
+    #[Groups(['job:list', 'job:item'])]
+    #[ORM\ManyToMany(targetEntity: Affiliate::class, inversedBy: 'jobs')]
+    private Collection $affiliates;
+
+    public function __construct()
+    {
+        $this->affiliates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -328,7 +338,31 @@ class Job
         $this->updatedAt = new \DateTime();
 
         if (!$this->expiresAt) {
-            $this->expiresAt = (clone $this->createdAt)->modify('+30 days');
+            $this->expiresAt = (clone $this->updatedAt)->modify('+30 days');
         }
+    }
+
+    /**
+     * @return Collection<int, Affiliate>
+     */
+    public function getAffiliates(): Collection
+    {
+        return $this->affiliates;
+    }
+
+    public function addAffiliate(Affiliate $affiliate): static
+    {
+        if (!$this->affiliates->contains($affiliate)) {
+            $this->affiliates->add($affiliate);
+        }
+
+        return $this;
+    }
+
+    public function removeAffiliate(Affiliate $affiliate): static
+    {
+        $this->affiliates->removeElement($affiliate);
+
+        return $this;
     }
 }
