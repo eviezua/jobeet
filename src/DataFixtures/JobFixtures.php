@@ -27,6 +27,7 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobSensioLabs->setCreatedAt(new \DateTime('-30 days'));
             $jobSensioLabs->setUpdatedAt(new \DateTime());
             $jobSensioLabs->setExpiresAt(new \DateTime('+30 days'));
+            $jobSensioLabs->addAffiliate($manager->merge($this->getReference('sensio_labs')));
 
             $jobExtremeSensio = new Job();
             $jobExtremeSensio->setCategory($manager->merge($this->getReference('category-design')));
@@ -43,7 +44,6 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobExtremeSensio->setEmail('job@example.com');
             $jobExtremeSensio->setCreatedAt(new \DateTime('-30 days'));
             $jobExtremeSensio->setUpdatedAt(new \DateTime());
-            $jobExtremeSensio->setExpiresAt(new \DateTime('+30 days'));
 
             $jobPrivatBank = new Job();
             $jobPrivatBank->setCategory($manager->merge($this->getReference('category-administrator')));
@@ -60,7 +60,7 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobPrivatBank->setEmail('job@example.com');
             $jobPrivatBank->setCreatedAt(new \DateTime('-90 days'));
             $jobPrivatBank->setUpdatedAt(new \DateTime('-20 days'));
-            $jobPrivatBank->setExpiresAt(new \DateTime('-10 days'));
+            $jobPrivatBank->addAffiliate($manager->merge($this->getReference('privat_bank')));
 
             $jobVodafone = new Job();
             $jobVodafone->setCategory($manager->merge($this->getReference('category-manager')));
@@ -77,7 +77,6 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobVodafone->setEmail('vodafone@example.com');
             $jobVodafone->setCreatedAt(new \DateTime('-90 days'));
             $jobVodafone->setUpdatedAt(new \DateTime('-20 days'));
-            $jobVodafone->setExpiresAt(new \DateTime('-10 days'));
 
             $jobMida = new Job();
             $jobMida->setCategory($manager->merge($this->getReference('category-programming')));
@@ -94,7 +93,6 @@ class JobFixtures extends Fixture implements DependentFixtureInterface
             $jobMida->setEmail('mida@example.com');
             $jobMida->setCreatedAt(new \DateTime('-90 days'));
             $jobMida->setUpdatedAt(new \DateTime('-20 days'));
-            $jobMida->setExpiresAt(new \DateTime('-10 days'));
 
             $manager->persist($jobSensioLabs);
             $manager->persist($jobExtremeSensio);
