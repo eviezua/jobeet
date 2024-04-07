@@ -43,6 +43,7 @@ class Category
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Job::class)]
+    #[Groups(['category:item'])]
     private Collection $jobs;
 
     #[Groups(['category:list', 'category:item'])]
