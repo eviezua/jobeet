@@ -39,6 +39,10 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $manager->persist($affiliateprivat);
 
         $manager->flush();
+
+        $this->addReference('sensio_labs', $affiliateSensioLabs);
+        $this->addReference('knp_labs', $affiliateKNPLabs);
+        $this->addReference('privat_bank', $affiliateprivat);
     }
     public function getDependencies(): array
     {
