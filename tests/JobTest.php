@@ -1,24 +1,21 @@
 <?php
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Affiliate;
-use App\Entity\Job;
+use App\Entity\User;
 use App\Factory\AffiliateFactory;
 use App\Factory\CategoryFactory;
 use App\Factory\JobFactory;
-use Doctrine\ORM\EntityManagerInterface;
 use Zenstruck\Foundry\Test\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
 
 class JobTest extends ApiTestCase
 {
     use ResetDatabase, Factories;
-    private function getEntityManager(): EntityManagerInterface
-    {
-        return self::getContainer()->get(EntityManagerInterface::class);
-    }
-
     public function testGetCollectionOfJobsWithDifferentAffiliates(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -47,7 +44,7 @@ class JobTest extends ApiTestCase
         JobFactory::createOne(['category' => $category3, 'activated' => true, 'public' => true]);
         JobFactory::createOne(['category' => $category4, 'activated' => true, 'public' => true]);
 
-        static::createClient()->request('GET', '/api/jobs');
+        static::createClient()->request('GET', '/api/jobs', ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -59,6 +56,9 @@ class JobTest extends ApiTestCase
     }
     public function testGetCollectionOfJobsWithInactiveAffiliates(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
         $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
@@ -72,7 +72,7 @@ class JobTest extends ApiTestCase
         JobFactory::createOne(['category' => $category1, 'activated' => false, 'public' => true]);
         JobFactory::createOne(['category' => $category1, 'activated' => false, 'public' => false]);
 
-        static::createClient()->request('GET', '/api/jobs');
+        static::createClient()->request('GET', '/api/jobs', ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -84,6 +84,9 @@ class JobTest extends ApiTestCase
     }
     public function testGetCollectionOfJobsWithActivatedAndNotActivatedJobs(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -97,7 +100,7 @@ class JobTest extends ApiTestCase
         JobFactory::createOne(['category' => $category1, 'activated' => false, 'public' => true]);
         JobFactory::createOne(['category' => $category1, 'activated' => false, 'public' => false]);
 
-        static::createClient()->request('GET', '/api/jobs');
+        static::createClient()->request('GET', '/api/jobs', ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -109,6 +112,9 @@ class JobTest extends ApiTestCase
     }
     public function testGetCollectionOfJobsWithPublicAndNotPublicJobs(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -126,7 +132,7 @@ class JobTest extends ApiTestCase
         JobFactory::createOne(['category' => $category2, 'activated' => true, 'public' => false]);
         JobFactory::createOne(['category' => $category2, 'activated' => false, 'public' => false]);
 
-        static::createClient()->request('GET', '/api/jobs');
+        static::createClient()->request('GET', '/api/jobs', ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -138,6 +144,9 @@ class JobTest extends ApiTestCase
     }
     public function testGetJobWithActiveAffiliateAndActivatedAndPublished(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -149,7 +158,7 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => true]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -163,6 +172,9 @@ class JobTest extends ApiTestCase
     }
     public function testGetJobWithInactiveAffiliateAndActivatedAndPublished(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
         $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
@@ -174,12 +186,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => true]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithActiveAffiliateAndNotActivatedAndPublicJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -191,12 +206,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => true]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithActiveAffiliateAndNotPublicJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -208,12 +226,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => false]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithActiveAffiliateAndNotPublicAndNotActivatedJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
         $activeAffiliate = $activeAffiliateProxy->object();
         $activeAffiliateId = $activeAffiliate->getId();
@@ -225,12 +246,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => false]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithInactiveAffiliateAndNotPublicAndNotActivatedJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
         $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
@@ -242,12 +266,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => false]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithInactiveAffiliateAndNotPublicAndActivatedJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
         $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
@@ -259,12 +286,15 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => false]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
     }
     public function testGetJobWithInactiveAffiliateAndPublicAndNotActivatedJob(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
         $inactiveAffiliate = $inactiveAffiliateProxy->object();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
@@ -276,8 +306,36 @@ class JobTest extends ApiTestCase
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => true]);
         $jobId = $job->getId();
 
-        static::createClient()->request('GET', "/api/jobs/$jobId");
+        static::createClient()->request('GET', "/api/jobs/$jobId", ['auth_bearer' => $token]);
 
         $this->assertResponseStatusCodeSame(404);
+    }
+    protected function createUser(string $username, string $password): User
+    {
+        $container = self::getContainer();
+
+        $user = new User();
+        $user->setUsername($username);
+        $user->setPassword(
+            $container->get('security.user_password_hasher')->hashPassword($user, $password)
+        );
+
+        $manager = $container->get('doctrine')->getManager();
+        $manager->persist($user);
+        $manager->flush();
+
+        return $user;
+    }
+    protected function getToken(string $username, string $password): string
+    {
+        $response = static::createClient()->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'username' => $username,
+                'password' => $password,
+            ],
+        ]);
+
+        return $response->toArray()['token'];
     }
 }

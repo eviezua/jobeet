@@ -3,6 +3,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Affiliate;
+use App\Entity\User;
 use App\Factory\AffiliateFactory;
 use App\Factory\CategoryFactory;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,9 @@ class CategoryTest extends ApiTestCase
 
     public function testGetCollectionOfCategories(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
+
         $category1 = CategoryFactory::createOne();
         $category2 = CategoryFactory::createOne();
         $category3 = CategoryFactory::createOne();
@@ -37,10 +41,10 @@ class CategoryTest extends ApiTestCase
             ['id' => $inactiveAffiliateId]));
         $category3->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
             ['id' => $activeAffiliateId]));
-        $category3->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+        $category4->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
             ['id' => $inactiveAffiliateId]));
 
-        static::createClient()->request('GET', '/api/categories');
+        static::createClient()->request('GET', '/api/categories', ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -52,12 +56,14 @@ class CategoryTest extends ApiTestCase
     }
 public function testGetCategoryWithNoAffiliates(): void
 {
+    $this->createUser('test','password');
+    $token = $this->getToken('test', 'password');
 
     $category = CategoryFactory::createOne();
 
     $categoryId = $category->getId();
 
-    static::createClient()->request('GET', "/api/categories/$categoryId");
+    static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
 
     $this->assertResponseIsSuccessful();
     $this->assertJsonContains([
@@ -73,6 +79,8 @@ public function testGetCategoryWithNoAffiliates(): void
 
     public function testGetCategoryWithActiveAffiliate(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
 
@@ -85,7 +93,7 @@ public function testGetCategoryWithNoAffiliates(): void
 
         $categoryId = $category->getId();
 
-        static::createClient()->request('GET', "/api/categories/$categoryId");
+        static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -101,6 +109,8 @@ public function testGetCategoryWithNoAffiliates(): void
     }
     public function testGetCategoryWithInactiveAffiliate(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
 
@@ -113,7 +123,7 @@ public function testGetCategoryWithNoAffiliates(): void
 
         $categoryId = $category->getId();
 
-        static::createClient()->request('GET', "/api/categories/$categoryId");
+        static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -128,6 +138,8 @@ public function testGetCategoryWithNoAffiliates(): void
     }
     public function testGetCategoryWithActiveAndInactiveAffiliate(): void
     {
+        $this->createUser('test','password');
+        $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
 
@@ -143,7 +155,7 @@ public function testGetCategoryWithNoAffiliates(): void
 
         $categoryId = $category->getId();
 
-        static::createClient()->request('GET', "/api/categories/$categoryId");
+        static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
@@ -156,5 +168,33 @@ public function testGetCategoryWithNoAffiliates(): void
                 ['@id' => "/api/affiliates/{$activeAffiliate->getId()}"]
             ]
         ]);
+    }
+    protected function createUser(string $username, string $password): User
+    {
+        $container = self::getContainer();
+
+        $user = new User();
+        $user->setUsername($username);
+        $user->setPassword(
+            $container->get('security.user_password_hasher')->hashPassword($user, $password)
+        );
+
+        $manager = $container->get('doctrine')->getManager();
+        $manager->persist($user);
+        $manager->flush();
+
+        return $user;
+    }
+    protected function getToken(string $username, string $password): string
+    {
+        $response = static::createClient()->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'username' => $username,
+                'password' => $password,
+            ],
+        ]);
+
+        return $response->toArray()['token'];
     }
 }
