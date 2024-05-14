@@ -2,28 +2,49 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[UniqueEntity('slug')]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+    ],
+    normalizationContext: ['groups' => 'category:list'],
+)]
+#[ApiResource(
+    operations: [
+        new Get(),
+    ],
+    normalizationContext: ['groups' => 'category:item']
+)]
 class Category
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['category:list', 'category:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+    #[Groups(['category:list', 'category:item'])]
     private ?string $name = null;
 
     #[ORM\OneToMany(mappedBy: 'category', targetEntity: Job::class)]
+    #[Groups(['category:item'])]
     private Collection $jobs;
 
+    #[Groups(['category:list', 'category:item'])]
     #[ORM\ManyToMany(targetEntity: Affiliate::class, mappedBy: 'categories')]
     private Collection $affilities;
 
@@ -35,10 +56,12 @@ class Category
         $this->jobs = new ArrayCollection();
         $this->affilities = new ArrayCollection();
     }
+
     public function __toString(): string
     {
         return $this->name;
     }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -50,12 +73,14 @@ class Category
 
         return $this;
     }
+
     public function computeSlug(SluggerInterface $slugger)
     {
         if (!$this->slug || '-' === $this->slug) {
-            $this->slug = (string) $slugger->slug((string) $this)->lower();
+            $this->slug = (string)$slugger->slug((string)$this)->lower();
         }
     }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -101,9 +126,19 @@ class Category
     /**
      * @return Collection<int, Affiliate>
      */
+
     public function getAffilities(): Collection
     {
         return $this->affilities;
+    }
+
+    #[Groups(['category:list', 'category:item'])]
+    #[SerializedName('affilities')]
+    public function getActiveAffilities(): Collection
+    {
+        return $this->affilities->filter(static function (Affiliate $affiliate) {
+            return $affiliate->isActive();
+        });
     }
 
     public function addAffility(Affiliate $affility): static
@@ -124,9 +159,10 @@ class Category
 
         return $this;
     }
+
     public function getActiveJobs()
     {
-        return $this->jobs->filter(function(Job $job) {
+        return $this->jobs->filter(function (Job $job) {
             return $job->getExpiresAt() > new \DateTime() && $job->isActivated();
         });
     }

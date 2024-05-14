@@ -2,11 +2,11 @@
 
 namespace App\Repository;
 
-use  App\Entity\Category;
+use App\Entity\Category;
 use App\Entity\Job;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<Job>
@@ -19,10 +19,12 @@ use Doctrine\ORM\Tools\Pagination\Paginator;
 class JobRepository extends ServiceEntityRepository
 {
     public const PAGINATOR_PER_PAGE = 10;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Job::class);
     }
+
     /**
      * @param int|null $categoryId
      *
@@ -44,6 +46,7 @@ class JobRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
     public function findActiveJob(int $id): ?Job
     {
         return $this->createQueryBuilder('j')
@@ -56,7 +59,8 @@ class JobRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
-    public function getPaginatedActiveJobsByCategoryQuery(Category $category, int $offset) : Paginator
+
+    public function getPaginatedActiveJobsByCategoryQuery(Category $category, int $offset): Paginator
     {
         $query = $this->createQueryBuilder('j')
             ->where('j.category = :category')
@@ -67,8 +71,7 @@ class JobRepository extends ServiceEntityRepository
             ->setParameter('activated', true)
             ->setMaxResults(self::PAGINATOR_PER_PAGE)
             ->setFirstResult($offset)
-            ->getQuery()
-        ;
+            ->getQuery();
         return new Paginator($query);
         /*return $this->createQueryBuilder('j')
             ->where('j.category = :category')

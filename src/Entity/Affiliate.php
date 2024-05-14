@@ -2,18 +2,30 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\AffiliateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AffiliateRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'affiliate:item']),
+        new GetCollection(normalizationContext: ['groups' => 'affiliate:list'])
+    ]
+)]
 class Affiliate
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -25,6 +37,7 @@ class Affiliate
     #[ORM\Column(length: 255)]
     private ?string $token = null;
 
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     #[ORM\Column]
     private ?bool $active = null;
 
@@ -32,11 +45,16 @@ class Affiliate
     private ?\DateTimeInterface $createdAt = null;
 
     #[ORM\ManyToMany(targetEntity: Category::class, inversedBy: 'affilities')]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
     private Collection $categories;
+    #[ORM\ManyToMany(targetEntity: Job::class, mappedBy: 'affiliates')]
+    #[Groups(['affiliate:list', 'affiliate:item'])]
+    private Collection $jobs;
 
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+        $this->jobs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -104,11 +122,10 @@ class Affiliate
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): static
+    #[ORM\PrePersist]
+    public function setCreatedAt(): void
     {
-        $this->createdAt = $createdAt;
-
-        return $this;
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     /**
@@ -131,6 +148,33 @@ class Affiliate
     public function removeCategory(Category $category): static
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Job>
+     */
+    public function getJobs(): Collection
+    {
+        return $this->jobs;
+    }
+
+    public function addJob(Job $job): static
+    {
+        if (!$this->jobs->contains($job)) {
+            $this->jobs->add($job);
+            $job->addAffiliate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJob(Job $job): static
+    {
+        if ($this->jobs->removeElement($job)) {
+            $job->removeAffiliate($this);
+        }
 
         return $this;
     }

@@ -4,21 +4,26 @@ namespace App\Controller;
 
 use App\Entity\Category;
 use App\Entity\Job;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
-use Twig\Environment;
+use App\Form\JobType;
 use App\Service\JobHistoryService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Form\JobType;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Twig\Environment;
+
 class JobController extends AbstractController
 {
     #[Route('/', name: 'job.list', methods: ['GET', 'POST'])]
-    public function list(Request $request, Environment $twig, EntityManagerInterface $em, JobHistoryService $jobHistoryService): Response
-    {
+    public function list(
+        Request $request,
+        Environment $twig,
+        EntityManagerInterface $em,
+        JobHistoryService $jobHistoryService
+    ): Response {
         $categories = $em->getRepository(Category::class)->findWithActiveJobs();
         return new Response($twig->render('job/list.html.twig', [
             'categories' => $categories,
@@ -27,8 +32,11 @@ class JobController extends AbstractController
     }
 
     #[Route('job/create', name: 'job.create', methods: ['POST', 'GET'])]
-    public function create(Request $request, EntityManagerInterface $em, #[Autowire('%jobs_directory%')] string $jobsDir) : Response
-    {
+    public function create(
+        Request $request,
+        EntityManagerInterface $em,
+        #[Autowire('%jobs_directory%')] string $jobsDir
+    ): Response {
         $job = new Job();
         $form = $this->createForm(JobType::class, $job);
         $form->handleRequest($request);
@@ -52,24 +60,29 @@ class JobController extends AbstractController
                 'job.preview',
                 ['token' => $job->getToken()]
             );
-
         }
 
         return $this->render('job/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
+
     #[Route('job/{id}', name: 'job.show', methods: ['GET'])]
-    public function show( Environment $twig, Job $job, EntityManagerInterface $em, JobHistoryService $jobHistoryService) : Response
-    {
+    public function show(
+        Environment $twig,
+        Job $job,
+        EntityManagerInterface $em,
+        JobHistoryService $jobHistoryService
+    ): Response {
         $jobHistoryService->addJob($job);
         /*$job = $em->getRepository(Job::class)->findActiveJob();*/
         return new Response($twig->render('job/show.html.twig', [
             'job' => $job,
         ]));
     }
+
     #[Route('job/admin/{token}', name: 'job.preview', methods: ['GET'])]
-    public function preview(Job $job) : Response
+    public function preview(Job $job): Response
     {
         $deleteForm = $this->createDeleteForm($job);
         $publishForm = $this->createPublishForm($job);
@@ -80,15 +93,17 @@ class JobController extends AbstractController
             'publishForm' => $publishForm->createView(),
         ]);
     }
-    private function createDeleteForm(Job $job) : FormInterface
+
+    private function createDeleteForm(Job $job): FormInterface
     {
         return $this->createFormBuilder()
             ->setAction($this->generateUrl('job.delete', ['token' => $job->getToken()]))
             ->setMethod('DELETE')
             ->getForm();
     }
+
     #[Route('job/admin/{token}/delete', name: 'job.delete', methods: ['DELETE', 'POST'])]
-    public function delete(Request $request, Job $job, EntityManagerInterface $em) : Response
+    public function delete(Request $request, Job $job, EntityManagerInterface $em): Response
     {
         $form = $this->createDeleteForm($job);
         $form->handleRequest($request);
@@ -100,15 +115,17 @@ class JobController extends AbstractController
 
         return $this->redirectToRoute('job.list');
     }
-    private function createPublishForm(Job $job) : FormInterface
+
+    private function createPublishForm(Job $job): FormInterface
     {
         return $this->createFormBuilder(['token' => $job->getToken()])
             ->setAction($this->generateUrl('job.publish', ['token' => $job->getToken()]))
             ->setMethod('POST')
             ->getForm();
     }
+
     #[Route('job/admin/{token}/publish', name: 'job.publish', methods: ['POST'])]
-    public function publish(Request $request, Job $job, EntityManagerInterface $em) : Response
+    public function publish(Request $request, Job $job, EntityManagerInterface $em): Response
     {
         $form = $this->createPublishForm($job);
         $form->handleRequest($request);
@@ -125,8 +142,9 @@ class JobController extends AbstractController
             'token' => $job->getToken(),
         ]);
     }
+
     #[Route('job/admin/{token}/edit', name: 'job.edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Job $job, EntityManagerInterface $em) : Response
+    public function edit(Request $request, Job $job, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(JobType::class, $job);
         $form->handleRequest($request);
@@ -139,7 +157,6 @@ class JobController extends AbstractController
                 'job.preview',
                 ['token' => $job->getToken()]
             );
-
         }
 
         return $this->render('job/edit.html.twig', [

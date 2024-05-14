@@ -21,7 +21,7 @@ class JobHistoryService
         $this->em = $em;
     }
 
-    public function addJob(Job $job) : void
+    public function addJob(Job $job): void
     {
         $jobs = $this->getJobsIds();
 
@@ -37,7 +37,8 @@ class JobHistoryService
         // Store IDs in session
         $this->requestStack->getSession()->set('job_history', $jobs);
     }
-    public function getJobs() : array
+
+    public function getJobs(): array
     {
         $jobs = [];
         $jobRepository = $this->em->getRepository(Job::class);
@@ -48,7 +49,8 @@ class JobHistoryService
 
         return array_filter($jobs);
     }
-    public function getJobsIds() : array
+
+    public function getJobsIds(): array
     {
         return $this->requestStack->getSession()->get('job_history', []);
     }

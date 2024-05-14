@@ -2,13 +2,25 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\JobRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: JobRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => 'job:item']),
+        new GetCollection(normalizationContext: ['groups' => 'job:list'])
+    ]
+)]
 class Job
 {
     public const FULL_TIME_TYPE = 'full-time';
@@ -22,10 +34,12 @@ class Job
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['job:list', 'job:item'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Groups(['job:item'])]
     private ?string $type = null;
 
     #[ORM\Column(length: 255)]
@@ -34,6 +48,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
+    #[Groups(['job:list', 'job:item'])]
     private ?string $company = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -44,6 +59,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
+    #[Groups(['job:item'])]
     private ?string $url = null;
 
     #[ORM\Column(length: 255)]
@@ -52,6 +68,7 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
+    #[Groups(['job:list', 'job:item'])]
     private ?string $position = null;
 
     #[ORM\Column(length: 255)]
@@ -60,14 +77,17 @@ class Job
         max: 255,
         maxMessage: 'Your first name cannot be longer than {{ limit }} characters',
     )]
+    #[Groups(['job:item'])]
     private ?string $location = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
+    #[Groups(['job:item'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
+    #[Groups(['job:item'])]
     private ?string $howToApply = null;
 
     #[ORM\Column(length: 255)]
@@ -83,10 +103,12 @@ class Job
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Email(  message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
+    #[Groups(['job:item'])]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['job:item'])]
     private ?\DateTimeInterface $expiresAt = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -98,7 +120,16 @@ class Job
     #[ORM\ManyToOne(inversedBy: 'jobs')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotBlank]
+    #[Groups(['job:list', 'job:item'])]
     private ?Category $category = null;
+    #[Groups(['job:list', 'job:item'])]
+    #[ORM\ManyToMany(targetEntity: Affiliate::class, inversedBy: 'jobs')]
+    private Collection $affiliates;
+
+    public function __construct()
+    {
+        $this->affiliates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -212,6 +243,7 @@ class Job
     {
         return $this->token;
     }
+
     #[ORM\PrePersist]
     public function setToken(): void
     {
@@ -271,6 +303,7 @@ class Job
     {
         return $this->createdAt;
     }
+
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -301,6 +334,7 @@ class Job
 
         return $this;
     }
+
     #[ORM\PrePersist]
     public function updateCreatedAt()
     {
@@ -308,7 +342,31 @@ class Job
         $this->updatedAt = new \DateTime();
 
         if (!$this->expiresAt) {
-            $this->expiresAt = (clone $this->createdAt)->modify('+30 days');
+            $this->expiresAt = (clone $this->updatedAt)->modify('+30 days');
         }
+    }
+
+    /**
+     * @return Collection<int, Affiliate>
+     */
+    public function getAffiliates(): Collection
+    {
+        return $this->affiliates;
+    }
+
+    public function addAffiliate(Affiliate $affiliate): static
+    {
+        if (!$this->affiliates->contains($affiliate)) {
+            $this->affiliates->add($affiliate);
+        }
+
+        return $this;
+    }
+
+    public function removeAffiliate(Affiliate $affiliate): static
+    {
+        $this->affiliates->removeElement($affiliate);
+
+        return $this;
     }
 }
