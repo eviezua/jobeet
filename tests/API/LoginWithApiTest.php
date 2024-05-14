@@ -1,14 +1,18 @@
 <?php
 
-namespace App\Tests;
+namespace App\Tests\API;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
+/**
+ * @group api
+ * @group user
+ */
 class LoginWithApiTest extends ApiTestCase
 {
-    use ReloadDatabaseTrait;
+    use ResetDatabase;
 
     public function testLogin(): void
     {
