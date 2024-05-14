@@ -1,19 +1,28 @@
 <?php
+
+namespace App\Tests\API;
+
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Affiliate;
 use App\Entity\User;
 use App\Factory\AffiliateFactory;
 use App\Factory\CategoryFactory;
 use App\Factory\JobFactory;
-use Zenstruck\Foundry\Test\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
+/**
+ * @group api
+ * @group job
+ */
 class JobTest extends ApiTestCase
 {
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
+
     public function testGetCollectionOfJobsWithDifferentAffiliates(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -24,18 +33,30 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category1 = CategoryFactory::createOne();
-        $category1->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category1->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $category2 = CategoryFactory::createOne();
-        $category2->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category2->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $category3 = CategoryFactory::createOne();
-        $category3->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
-        $category3->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category3->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
+        $category3->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $category4 = CategoryFactory::createOne();
 
@@ -54,9 +75,10 @@ class JobTest extends ApiTestCase
             'hydra:totalItems' => 2,
         ]);
     }
+
     public function testGetCollectionOfJobsWithInactiveAffiliates(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -64,8 +86,11 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category1 = CategoryFactory::createOne();
-        $category1->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category1->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
 
         JobFactory::createOne(['category' => $category1, 'activated' => true, 'public' => false]);
@@ -82,9 +107,10 @@ class JobTest extends ApiTestCase
             'hydra:totalItems' => 0,
         ]);
     }
+
     public function testGetCollectionOfJobsWithActivatedAndNotActivatedJobs(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -92,8 +118,11 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category1 = CategoryFactory::createOne();
-        $category1->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category1->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
 
         JobFactory::createOne(['category' => $category1, 'activated' => true, 'public' => true]);
@@ -110,9 +139,10 @@ class JobTest extends ApiTestCase
             'hydra:totalItems' => 1,
         ]);
     }
+
     public function testGetCollectionOfJobsWithPublicAndNotPublicJobs(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -120,12 +150,18 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category1 = CategoryFactory::createOne();
-        $category1->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category1->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $category2 = CategoryFactory::createOne();
-        $category2->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category2->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
 
         JobFactory::createOne(['category' => $category1, 'activated' => true, 'public' => true]);
@@ -142,9 +178,10 @@ class JobTest extends ApiTestCase
             'hydra:totalItems' => 1,
         ]);
     }
+
     public function testGetJobWithActiveAffiliateAndActivatedAndPublished(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -152,8 +189,11 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => true]);
         $jobId = $job->getId();
@@ -167,12 +207,13 @@ class JobTest extends ApiTestCase
             '@id' => "/api/jobs/$jobId",
         ]);
         $this->assertJsonContains([
-            'category' =>  "/api/categories/{$category->getId()}"
+            'category' => "/api/categories/{$category->getId()}",
         ]);
     }
+
     public function testGetJobWithInactiveAffiliateAndActivatedAndPublished(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -180,8 +221,11 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => true]);
         $jobId = $job->getId();
@@ -190,9 +234,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithActiveAffiliateAndNotActivatedAndPublicJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -200,8 +245,11 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => true]);
         $jobId = $job->getId();
@@ -210,9 +258,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithActiveAffiliateAndNotPublicJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -220,8 +269,11 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => false]);
         $jobId = $job->getId();
@@ -230,9 +282,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithActiveAffiliateAndNotPublicAndNotActivatedJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $activeAffiliateProxy = AffiliateFactory::createOne(['active' => true]);
@@ -240,8 +293,11 @@ class JobTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => false]);
         $jobId = $job->getId();
@@ -250,9 +306,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithInactiveAffiliateAndNotPublicAndNotActivatedJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -260,8 +317,11 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => false]);
         $jobId = $job->getId();
@@ -270,9 +330,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithInactiveAffiliateAndNotPublicAndActivatedJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -280,8 +341,11 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => true, 'public' => false]);
         $jobId = $job->getId();
@@ -290,9 +354,10 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     public function testGetJobWithInactiveAffiliateAndPublicAndNotActivatedJob(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $inactiveAffiliateProxy = AffiliateFactory::createOne(['active' => false]);
@@ -300,8 +365,11 @@ class JobTest extends ApiTestCase
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
         $category = CategoryFactory::createOne();
-        $category->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         $job = JobFactory::createOne(['category' => $category, 'activated' => false, 'public' => true]);
         $jobId = $job->getId();
@@ -310,6 +378,7 @@ class JobTest extends ApiTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
     protected function createUser(string $username, string $password): User
     {
         $container = self::getContainer();
@@ -326,6 +395,7 @@ class JobTest extends ApiTestCase
 
         return $user;
     }
+
     protected function getToken(string $username, string $password): string
     {
         $response = static::createClient()->request('POST', '/auth', [

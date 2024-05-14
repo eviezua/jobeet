@@ -1,5 +1,6 @@
 <?php
-namespace App\Tests;
+
+namespace App\Tests\API;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Affiliate;
@@ -7,12 +8,18 @@ use App\Entity\User;
 use App\Factory\AffiliateFactory;
 use App\Factory\CategoryFactory;
 use Doctrine\ORM\EntityManagerInterface;
-use Zenstruck\Foundry\Test\ResetDatabase;
 use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 
+/**
+ * @group api
+ * @group category
+ */
 class CategoryTest extends ApiTestCase
 {
-    use ResetDatabase, Factories;
+    use ResetDatabase;
+    use Factories;
+
     private function getEntityManager(): EntityManagerInterface
     {
         return self::getContainer()->get(EntityManagerInterface::class);
@@ -20,7 +27,7 @@ class CategoryTest extends ApiTestCase
 
     public function testGetCollectionOfCategories(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $category1 = CategoryFactory::createOne();
@@ -35,14 +42,26 @@ class CategoryTest extends ApiTestCase
         $activeAffiliateId = $activeAffiliate->getId();
         $inactiveAffiliateId = $inactiveAffiliate->getId();
 
-        $category1->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
-        $category2->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
-        $category3->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $activeAffiliateId]));
-        $category4->addAffility(static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
-            ['id' => $inactiveAffiliateId]));
+        $category1->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
+        $category2->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
+        $category3->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $activeAffiliateId]
+            )
+        );
+        $category4->addAffility(
+            static::getContainer()->get('doctrine')->getRepository(Affiliate::class)->findOneBy(
+                ['id' => $inactiveAffiliateId]
+            )
+        );
 
         static::createClient()->request('GET', '/api/categories', ['auth_bearer' => $token]);
 
@@ -54,32 +73,33 @@ class CategoryTest extends ApiTestCase
             'hydra:totalItems' => 4,
         ]);
     }
-public function testGetCategoryWithNoAffiliates(): void
-{
-    $this->createUser('test','password');
-    $token = $this->getToken('test', 'password');
 
-    $category = CategoryFactory::createOne();
+    public function testGetCategoryWithNoAffiliates(): void
+    {
+        $this->createUser('test', 'password');
+        $token = $this->getToken('test', 'password');
 
-    $categoryId = $category->getId();
+        $category = CategoryFactory::createOne();
 
-    static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
+        $categoryId = $category->getId();
 
-    $this->assertResponseIsSuccessful();
-    $this->assertJsonContains([
-        '@type' => 'Category',
-        '@context' => '/api/contexts/Category',
-        '@id' => "/api/categories/$categoryId",
-    ]);
-    $this->assertJsonContains([
-        'affilities' => [
-        ]
-    ]);
-}
+        static::createClient()->request('GET', "/api/categories/$categoryId", ['auth_bearer' => $token]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@type' => 'Category',
+            '@context' => '/api/contexts/Category',
+            '@id' => "/api/categories/$categoryId",
+        ]);
+        $this->assertJsonContains([
+            'affilities' => [
+            ]
+        ]);
+    }
 
     public function testGetCategoryWithActiveAffiliate(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
@@ -107,9 +127,10 @@ public function testGetCategoryWithNoAffiliates(): void
             ]
         ]);
     }
+
     public function testGetCategoryWithInactiveAffiliate(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
@@ -136,9 +157,10 @@ public function testGetCategoryWithNoAffiliates(): void
             ]
         ]);
     }
+
     public function testGetCategoryWithActiveAndInactiveAffiliate(): void
     {
-        $this->createUser('test','password');
+        $this->createUser('test', 'password');
         $token = $this->getToken('test', 'password');
 
         $category = CategoryFactory::createOne();
@@ -169,6 +191,7 @@ public function testGetCategoryWithNoAffiliates(): void
             ]
         ]);
     }
+
     protected function createUser(string $username, string $password): User
     {
         $container = self::getContainer();
@@ -185,6 +208,7 @@ public function testGetCategoryWithNoAffiliates(): void
 
         return $user;
     }
+
     protected function getToken(string $username, string $password): string
     {
         $response = static::createClient()->request('POST', '/auth', [
