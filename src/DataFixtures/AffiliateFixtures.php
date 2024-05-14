@@ -44,6 +44,7 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $this->addReference('knp_labs', $affiliateKNPLabs);
         $this->addReference('privat_bank', $affiliateprivat);
     }
+
     public function getDependencies(): array
     {
         return [

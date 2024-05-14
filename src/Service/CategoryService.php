@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\Category;
@@ -11,7 +12,7 @@ class CategoryService
         $this->em = $em;
     }
 
-    public function create(string $name) : Category
+    public function create(string $name): Category
     {
         $category = new Category();
         $category->setName($name);

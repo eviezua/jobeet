@@ -56,10 +56,12 @@ class Category
         $this->jobs = new ArrayCollection();
         $this->affilities = new ArrayCollection();
     }
+
     public function __toString(): string
     {
         return $this->name;
     }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -71,12 +73,14 @@ class Category
 
         return $this;
     }
+
     public function computeSlug(SluggerInterface $slugger)
     {
         if (!$this->slug || '-' === $this->slug) {
-            $this->slug = (string) $slugger->slug((string) $this)->lower();
+            $this->slug = (string)$slugger->slug((string)$this)->lower();
         }
     }
+
     public function getName(): ?string
     {
         return $this->name;
@@ -127,14 +131,16 @@ class Category
     {
         return $this->affilities;
     }
+
     #[Groups(['category:list', 'category:item'])]
     #[SerializedName('affilities')]
     public function getActiveAffilities(): Collection
     {
         return $this->affilities->filter(static function (Affiliate $affiliate) {
-           return $affiliate->isActive();
+            return $affiliate->isActive();
         });
     }
+
     public function addAffility(Affiliate $affility): static
     {
         if (!$this->affilities->contains($affility)) {
@@ -153,9 +159,10 @@ class Category
 
         return $this;
     }
+
     public function getActiveJobs()
     {
-        return $this->jobs->filter(function(Job $job) {
+        return $this->jobs->filter(function (Job $job) {
             return $job->getExpiresAt() > new \DateTime() && $job->isActivated();
         });
     }

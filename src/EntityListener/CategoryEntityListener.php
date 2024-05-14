@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Symfony\Component\String\Slugger\SluggerInterface;
+
 #[AsEntityListener(event: Events::prePersist, entity: Category::class)]
 #[AsEntityListener(event: Events::preUpdate, entity: Category::class)]
 class CategoryEntityListener

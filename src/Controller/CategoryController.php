@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Category;
-use App\Entity\Job;
 use App\Repository\JobRepository;
 use App\Service\JobHistoryService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,8 +14,13 @@ use Twig\Environment;
 class CategoryController extends AbstractController
 {
     #[Route('/category/{slug}', name: 'category.show', methods: ['GET'])]
-    public function show(Request $request, Category $category, Environment $twig, JobRepository $jobRepository, JobHistoryService $jobHistoryService): Response
-    {
+    public function show(
+        Request $request,
+        Category $category,
+        Environment $twig,
+        JobRepository $jobRepository,
+        JobHistoryService $jobHistoryService
+    ): Response {
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $jobRepository->getPaginatedActiveJobsByCategoryQuery($category, $offset);
 

@@ -5,21 +5,21 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use App\Repository\JobRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Serializer\Annotation\Groups;
-use App\Repository\JobRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Entity(repositoryClass: JobRepository::class)]
 #[ApiResource(
-        operations: [
-            new Get(normalizationContext: ['groups' => 'job:item']),
-            new GetCollection(normalizationContext: ['groups' => 'job:list'])
-        ]
+    operations: [
+        new Get(normalizationContext: ['groups' => 'job:item']),
+        new GetCollection(normalizationContext: ['groups' => 'job:list'])
+    ]
 )]
 class Job
 {
@@ -82,7 +82,7 @@ class Job
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank]
-    #[Groups([ 'job:item'])]
+    #[Groups(['job:item'])]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::TEXT)]
@@ -103,7 +103,7 @@ class Job
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Email(  message: 'The email {{ value }} is not a valid email.')]
+    #[Assert\Email(message: 'The email {{ value }} is not a valid email.')]
     #[Groups(['job:item'])]
     private ?string $email = null;
 
@@ -243,6 +243,7 @@ class Job
     {
         return $this->token;
     }
+
     #[ORM\PrePersist]
     public function setToken(): void
     {
@@ -302,6 +303,7 @@ class Job
     {
         return $this->createdAt;
     }
+
     public function setCreatedAt(\DateTimeInterface $createdAt): static
     {
         $this->createdAt = $createdAt;
@@ -325,12 +327,14 @@ class Job
     {
         return $this->category;
     }
+
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
 
         return $this;
     }
+
     #[ORM\PrePersist]
     public function updateCreatedAt()
     {

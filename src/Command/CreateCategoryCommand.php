@@ -2,14 +2,12 @@
 
 namespace App\Command;
 
+use App\Service\CategoryService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
-use App\Service\CategoryService;
 use Symfony\Component\Console\Question\Question;
 
 #[AsCommand(
@@ -28,9 +26,9 @@ class CreateCategoryCommand extends Command
     {
         $this
             ->setHelp('This command helps you to add new category in db!')
-            ->addArgument('name', InputArgument::OPTIONAL, 'The name of your category: ')
-        ;
+            ->addArgument('name', InputArgument::OPTIONAL, 'The name of your category: ');
     }
+
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
         if (!$input->getArgument('name')) {
