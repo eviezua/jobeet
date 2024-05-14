@@ -103,6 +103,6 @@
         "symfony/stopwatch": "6.3.*",
         "symfony/web-profiler-bundle": "6.3.*",
         "zenstruck/browser": "^1.8",
-        "zenstruck/foundry": "^1.36"
+        "zenstruck/foundry": "^1.37"
     }
 }
