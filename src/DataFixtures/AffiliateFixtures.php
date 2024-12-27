@@ -17,6 +17,7 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $affiliateSensioLabs->setActive(true);
         $affiliateSensioLabs->setToken('sensio_labs');
         $affiliateSensioLabs->addCategory($manager->merge($this->getReference('category-programming')));
+        $affiliateSensioLabs->setOwner($manager->merge($this->getReference('user-admin')));
 
         $affiliateKNPLabs = new Affiliate();
         $affiliateKNPLabs->setUrl('http://www.knplabs.com/');
@@ -25,6 +26,7 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $affiliateKNPLabs->setToken('knp_labs');
         $affiliateKNPLabs->addCategory($manager->merge($this->getReference('category-programming')));
         $affiliateKNPLabs->addCategory($manager->merge($this->getReference('category-design')));
+        $affiliateKNPLabs->setOwner($manager->merge($this->getReference('user-admin')));
 
         $affiliateprivat = new Affiliate();
         $affiliateprivat->setUrl('http://www.privat-bank.com/');
@@ -33,6 +35,7 @@ class AffiliateFixtures extends Fixture implements DependentFixtureInterface
         $affiliateprivat->setToken('privat_bank');
         $affiliateprivat->addCategory($manager->merge($this->getReference('category-administrator')));
         $affiliateprivat->addCategory($manager->merge($this->getReference('category-programming')));
+        $affiliateprivat->setOwner($manager->merge($this->getReference('user-admin')));
 
         $manager->persist($affiliateSensioLabs);
         $manager->persist($affiliateKNPLabs);
