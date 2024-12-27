@@ -7,6 +7,11 @@ parameters:
     locale: 'en'
     max_jobs_on_homepage: 10
     jobs_directory: "%kernel.project_dir%/public/uploads/jobs"
+    admin_email: "%env(ADMIN_EMAIL)%"
+    default_domain: '%env(APP_URL)%'
+    default_scheme: 'http'
+    router.request_context.host: '%env(default:default_domain:SYMFONY_DEFAULT_ROUTE_HOST)%'
+    router.request_context.scheme: '%env(default:default_scheme:SYMFONY_DEFAULT_ROUTE_SCHEME)%'
 services:
     # default configuration for services in *this* file
     _defaults:
