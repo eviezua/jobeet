@@ -1,0 +1,27 @@
+framework:
+    workflows:
+        affiliate:
+            type: state_machine
+            audit_trail:
+                enabled: "%kernel.debug%"
+            marking_store:
+                type: 'method'
+                property: 'state'
+            supports:
+                - App\Entity\Affiliate
+            initial_marking: submitted
+            places:
+                - submitted
+                - processing
+                - rejected
+                - accepted
+            transitions:
+                send_to_admin:
+                    from: submitted
+                    to: processing
+                reject:
+                    from: processing
+                    to: rejected
+                accept:
+                    from: processing
+                    to: accepted
