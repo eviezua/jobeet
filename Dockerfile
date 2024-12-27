@@ -28,6 +28,12 @@ RUN apk update && \
     apk add --no-cache --virtual dev-deps git autoconf gcc g++ make && \
     apk add --no-cache zlib-dev libzip-dev linux-headers postgresql-dev libxslt-dev pcre-dev rabbitmq-c-dev
 
+RUN apk update && \
+    apk add --no-cache rabbitmq-c rabbitmq-c-dev autoconf gcc g++ make && \
+    pecl install amqp && \
+    docker-php-ext-enable amqp
+
+
 RUN docker-php-ext-install pdo_pgsql intl zip xsl
 
 RUN set -eux; \
@@ -104,4 +110,17 @@ RUN set -eux; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
 	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
-	chmod +x bin/console; sync;
+	chmod +x bin/console; sync; \
+
+FROM rabbitmq:management AS rabbitmq
+
+# Enable delayed message exchange plugin
+RUN rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+
+# Expose ports
+EXPOSE 5672 15672
+
+# Start RabbitMQ server
+CMD ["rabbitmq-server"]
+
+
