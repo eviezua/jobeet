@@ -39,6 +39,9 @@ services:
       - target: 443
         published: ${HTTP3_PORT:-443}
         protocol: udp
+    networks:
+      - app_network
+
 
   database:
     image: postgres:${POSTGRES_VERSION:-15}-alpine
@@ -53,7 +56,30 @@ services:
       - ./data:/var/lib/postgresql/data:rw
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/postgresql/data:rw
-
+    networks:
+      - app_network
+  rabbitmq:
+    image: rabbitmq:4-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app_network
+  ###> symfony/mailer ###
+  mailer:
+    image: schickling/mailcatcher
+    ports:
+      - "1025:1025"
+      - "1080:1080"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - app_network
+###< symfony/mailer ###
 # Mercure is installed as a Caddy module, prevent the Flex recipe from installing another service
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
@@ -63,3 +89,7 @@ volumes:
   caddy_config:
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+networks:
+  app_network:
+    driver: bridge
+
