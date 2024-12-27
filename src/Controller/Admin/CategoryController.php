@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Affiliate;
 use App\Entity\Category;
 use App\Entity\Job;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
@@ -53,5 +54,6 @@ class CategoryController extends AbstractDashboardController
     {
         yield MenuItem::linkToCrud('Category', 'fas fa-compass', Category::class);
         yield MenuItem::linkToCrud('Jobs', 'fas fa-list', Job::class);
+        yield MenuItem::linkToCrud('Affiliate', 'fas fa-list', Affiliate::class);
     }
 }
