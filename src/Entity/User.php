@@ -2,15 +2,27 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
 #[UniqueEntity(fields: ['username'], message: 'There is already an account with this username')]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+    ],
+    normalizationContext: ['groups' => 'user:list'],
+)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -29,6 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\Column]
     private ?string $password = null;
+
+    #[ORM\OneToMany(mappedBy: 'owner', targetEntity: Affiliate::class, orphanRemoval: true)]
+    private Collection $affiliates;
+
+    public function __construct()
+    {
+        $this->affiliates = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -98,5 +118,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Affiliate>
+     */
+    #[Groups(['user:list'])]
+    #[SerializedName('affiliates')]
+    public function getActiveAffilities(): Collection
+    {
+        return $this->affiliates->filter(static function (Affiliate $affiliate) {
+            return $affiliate->isActive();
+        });
+    }
+    public function getAffiliates(): Collection
+    {
+        return $this->affiliates;
+    }
+
+    public function addAffiliate(Affiliate $affiliate): static
+    {
+        if (!$this->affiliates->contains($affiliate)) {
+            $this->affiliates->add($affiliate);
+            $affiliate->setOwner($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAffiliate(Affiliate $affiliate): static
+    {
+        if ($this->affiliates->removeElement($affiliate)) {
+            // set the owning side to null (unless already changed)
+            if ($affiliate->getOwner() === $this) {
+                $affiliate->setOwner(null);
+            }
+        }
+
+        return $this;
     }
 }
