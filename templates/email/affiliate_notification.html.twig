@@ -1,0 +1,20 @@
+{% extends '@email/default/notification/body.html.twig' %}
+
+{% block content %}
+    Url: {{ affiliate.url }}<br />
+    Email: {{ affiliate.email }}<br />
+    User: {{ affiliate.owner.username  }}<br />
+    <p>
+    {% for category in affiliate.categories %}
+        <p>{{ category.name }}</p>
+    {% else %}
+        <p>No categories found.</p>
+    {% endfor %}
+    </p>
+{% endblock %}
+
+{% block action %}
+    <spacer size="16"></spacer>
+    <button><a href="{{ url('review_affiliate', { id: affiliate.id, reject: false }) }}">Accept</a></button>
+    <button><a href="{{ url('review_affiliate', { id: affiliate.id, reject: true }) }}">Reject</a></button>
+{% endblock %}
