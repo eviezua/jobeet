@@ -51,6 +51,13 @@ class Affiliate
     #[Groups(['affiliate:list', 'affiliate:item'])]
     private Collection $jobs;
 
+    #[ORM\Column(length: 255, options: ['default' => 'submitted'])]
+    private ?string $state = 'submitted';
+
+    #[ORM\ManyToOne(inversedBy: 'affiliates')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $owner = null;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -98,25 +105,30 @@ class Affiliate
         return $this->token;
     }
 
-    public function setToken(string $token): static
+    #[ORM\PrePersist]
+    public function setToken(): void
     {
+        $token = bin2hex(\random_bytes(10));
         $this->token = $token;
-
-        return $this;
     }
 
     public function isActive(): ?bool
     {
         return $this->active;
     }
+    #[ORM\PrePersist]
+    public function setActiveByDefault(): void
+    {
+        if($this->active === null){
+            $this->active = true;
+        }
 
+    }
     public function setActive(bool $active): static
     {
         $this->active = $active;
-
         return $this;
     }
-
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->createdAt;
@@ -175,6 +187,30 @@ class Affiliate
         if ($this->jobs->removeElement($job)) {
             $job->removeAffiliate($this);
         }
+
+        return $this;
+    }
+
+    public function getState(): ?string
+    {
+        return $this->state;
+    }
+
+    public function setState(?string $state): static
+    {
+        $this->state = $state;
+
+        return $this;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
 
         return $this;
     }
