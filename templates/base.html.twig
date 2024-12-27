@@ -32,7 +32,19 @@
                 {% if is_granted('ROLE_USER') %}
                     <li>
                         <div>
+                            <a href="{{ path('app_affiliate') }}" class="btn btn-default navbar-btn">Become an Affiliate</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div>
                             <a href="{{ path('app_logout') }}" class="btn btn-default navbar-btn">Log Out</a>
+                        </div>
+                    </li>
+                {% endif %}
+                {% if is_granted('ROLE_AFFILIATE') %}
+                    <li>
+                        <div>
+                            <a href="{{ path('api_entrypoint') }}" class="btn btn-default navbar-btn">API</a>
                         </div>
                     </li>
                 {% endif %}
